@@ -164,3 +164,5 @@ points(datanew[datanew$V2=='M',2:3],col="red")
 datanew <- wdbc[, c('V2' ,'V11' ,'V12')]
 plot(datanew[,2:3])
 points(datanew[datanew$V2=='M',2:3],col="red")
+
+#whoo a change
