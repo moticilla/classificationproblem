@@ -2,6 +2,61 @@
 
 wdbc <- read.csv("~/Documents/classification_problem/wdbc.data", header=FALSE)
 
+wdbc <- read.csv("~/Documents/classification_problem/wdbc.data", header=FALSE)
+data1 <- wdbc[, c('V4' ,'V9', 'V2')]
+data1[data1 == "M"] <- 1
+data1[data1 == "B"] <- 0
+head(data1)
+
+
+plot(data1[,1:2])
+points(data1[data1$V2==1,1:2],col="red")
+
+m <- 120
+x <- seq(-1.25,0.87,length=m)
+y <- seq(-0.2,1.1,length=m)
+gr <- expand.grid(x,y)
+colnames(gr) <- c("V4","V9")
+# 
+# tru.dens <- function(x){
+#   mu11 <- c(-0.7,0.3)
+#   mu12 <- c(0.3,0.3)
+#   mu21 <- c(-0.3,0.7)
+#   mu22 <- c(0.4,0.7)
+#   sd <- (0.03)
+#   f1 <- 0.5*(dmvnorm(x,mu11,sd*diag(1,2))+ dmvnorm(x,mu12,sd*diag(1,2)))
+#   f2 <- 0.5*(dmvnorm(x,mu21,sd*diag(1,2))+ dmvnorm(x,mu22,sd*diag(1,2)))
+#   f2/(f2+f1)
+# }
+
+my.gr.pred <- apply(gr,1,tru.dens)
+my.gr.pred.mat <- matrix(my.gr.pred,ncol=m)
+contour(x,y,my.gr.pred.mat,levels=0.5,add=T,col="red",lty=1,lwd=2,drawlabels=F)
+
+k <- 3
+# 
+# my.knn <-  knn(synth.tr[,1:2],synth.te[,1:2],synth.tr[,3],k=k)
+# knn.cl <- as.numeric(my.knn)-1
+# 
+# knn.prob <- (attributes(knn(synth.tr[,1:2],synth.te[,1:2],synth.tr[,3],k=k,prob=T)))$prob
+# my.test.pred <- knn.cl * knn.prob + (1-knn.cl)*(1-knn.prob)
+# err.rate <- sum((my.test.pred >= 0.5) != synth.te$yc)/nrow(synth.te) 
+# 
+# 
+# err.rate
+
+my.gr.knn <- knn(synth.tr[,1:2],gr,synth.tr[,3],k=k)
+my.gr.knn.cl <- as.numeric(my.gr.knn)-1
+my.gr.knn.prob <- (attributes(knn(synth.tr[,1:2],gr,synth.tr[,3],k=k,prob=T)))$prob
+my.gr.pred <- my.gr.knn.cl * my.gr.knn.prob + (1-my.gr.knn.cl)*(1-my.gr.knn.prob)
+my.gr.pred.mat <- matrix(my.gr.pred,ncol=m)
+
+contour(x,y,my.gr.pred.mat,levels=0.5,add=T,col="orange",lty=2,lwd=2,drawlabels=F)
+
+
+
+
+
 # a1 = wdbc$V3
 # a2 = wdbc$V13
 # a3 = wdbc$V23
@@ -24,83 +79,7 @@ wdbc <- read.csv("~/Documents/classification_problem/wdbc.data", header=FALSE)
 # concavepoints1 = wdbc$V10
 # symmetry1 = wdbc$V11
 # fractaldim1 = wdbc$V12
-# 
-# 
-
-
-# plot(radius1, texture1)
-# plot(radius1, perimeter1)
-# plot(radius1, area1)
-# plot(radius1, smoothness1)
-# plot(radius1, compactness1)
-# plot(radius1, concavity1)
-# plot(radius1, concavepoints1)
-# plot(radius1, symmetry1)
-# plot(radius1, fractaldim1)
-# plot(texture1, perimeter1)
-# plot(texture1, area1)
-# plot(texture1, smoothness1)
-# plot(texture1, compactness1)
-# plot(texture1, concavity1)
-# plot(texture1, concavepoints1)
-# plot(texture1, symmetry1)
-# plot(texture1, fractaldim1)
-# plot(perimeter1, area1)
-# plot(perimeter1, smoothness1)
-# plot(perimeter1, compactness1)
-# plot(perimeter1, concavity1)
-# plot(perimeter1, concavepoints1)
-# plot(perimeter1, symmetry1)
-
-# 
-# datanew <- wdbc[, c('V2' ,'V11' ,'V12')]
-# plot(datanew[,2:3])
-# points(datanew[datanew$V2=='M',2:3],col="red")
-# 
-
-
-k <- 3
-
-#compute k-nn on the test set
-
-my.knn <-  knn(synth.tr[,1:2],synth.te[,1:2],synth.tr[,3],k=k)
-knn.cl <- as.numeric(my.knn)-1
-
-# extract the posterior probabilities, and compute the test set error rate
-knn.prob <- (attributes(knn(synth.tr[,1:2],synth.te[,1:2],synth.tr[,3],k=k,prob=T)))$prob
-my.test.pred <- knn.cl * knn.prob + (1-knn.cl)*(1-knn.prob)
-err.rate <- sum((my.test.pred >= 0.5) != synth.te$yc)/nrow(synth.te) 
-
-
-err.rate
-
-
-
-###
-
-
-# evalute the predicted probabilites on the grip, extract the probabilities
-my.gr.knn <- knn(wdbc[,3:4],gr,wdbc[,2],k=k)
-my.gr.knn.cl <- as.numeric(my.gr.knn)-1
-my.gr.knn.prob <- (attributes(knn(wdbc[,3:4],gr,wdbc[,2],k=k,prob=T)))$prob
-my.gr.pred <- my.gr.knn.cl * my.gr.knn.prob + (1-my.gr.knn.cl)*(1-my.gr.knn.prob)
-my.gr.pred.mat <- matrix(my.gr.pred,ncol=m)
-
-# add the contour plot
-contour(x,y,my.gr.pred.mat,levels=0.5,add=T,col="orange",lty=2,lwd=2,drawlabels=F)
 
 
 
 
-#me having a go:
-datanew <- wdbc[, c('V2' ,'V3' ,'V4')]
-
-# evalute the predicted probabilites on the grip, extract the probabilities
-my.gr.knn <- knn(datanew[,2:3],gr,wdbc[,1],k=k)
-my.gr.knn.cl <- as.numeric(my.gr.knn)-1
-my.gr.knn.prob <- (attributes(knn(datanew[,2:3],gr,datanew[,1],k=k,prob=T)))$prob
-my.gr.pred <- my.gr.knn.cl * my.gr.knn.prob + (1-my.gr.knn.cl)*(1-my.gr.knn.prob)
-my.gr.pred.mat <- matrix(my.gr.pred,ncol=m)
-
-# add the contour plot
-contour(x,y,my.gr.pred.mat,levels=0.5,add=T,col="orange",lty=2,lwd=2,drawlabels=F)
