@@ -24,8 +24,10 @@ data1.te <- data1[-picked,]
 
 #basic-plots
 
-plot(data1[,1:2])
-points(data1[data1$V2==1,1:2],col="red")
+
+plot(data1.tr[,1:2])
+points(data1.tr[data1.tr$V2==1,1:2],col="red")
+
 
 m <- 120
 x <- seq(-1.25,0.87,length=m)
@@ -55,7 +57,7 @@ knn.cl <- as.numeric(my.knn)-1
 
 knn.prob <- (attributes(knn(data1.tr[,1:2],data1.te[,1:2],data1.tr[,3],k=k,prob=T)))$prob
 my.test.pred <- knn.cl * knn.prob + (1-knn.cl)*(1-knn.prob)
-err.rate <- sum((my.test.pred >= 0.5) != data1.te$yc)/nrow(data1.te)
+err.rate <- sum((my.test.pred >= 0.5) != data1.te$V2)/nrow(data1.te)
 
 
 err.rate
@@ -74,5 +76,91 @@ contour(x,y,my.gr.pred.mat,levels=0.5,add=T,col="orange",lty=2,lwd=2,drawlabels=
 #LDA
 
 
+rip.lda <- lda(V2~.,data=data1.tr)
+
+rip.lda.pred <- predict(rip.lda,data1.te)$posterior[,2]
+
+table(data1.te$V2,rip.lda.pred > 0.5)
+rip.lda.test.err <- sum(data1.te$V2 != (rip.lda.pred > 0.5))/nrow(data1.te)
+
+rip.qda <- qda(V2~.,data=data1.tr)
+rip.qda.pred <- predict(rip.qda,data1.te)$posterior[,2]
+
+table(data1.te$V2,rip.qda.pred > 0.5)
+rip.qda.test.err <- sum(data1.te$V2 != (rip.qda.pred > 0.5))/nrow(data1.te)
+
+rip.qda.train.pred <- predict(rip.qda,data1.tr)$posterior[,2]
+rip.lda.train.pred <- predict(rip.lda,data1.tr)$posterior[,2]
+
+table(data1.tr$V2,rip.lda.train.pred > 0.5)
+rip.lda.train.err <- sum(data1.tr$V2!=(rip.lda.train.pred > 0.5))/nrow(data1.tr)
+
+table(data1.tr$V2,rip.qda.train.pred > 0.5)
+rip.qda.train.err <- sum(data1.tr$V2!=(rip.qda.train.pred > 0.5))/nrow(data1.tr)
+
+
+m <- 120
+x <- seq(-1.25,0.87,length=m)
+y <- seq(-0.2,1.1,length=m)
+gr <- expand.grid(x,y)
+colnames(gr) <- c("V4","V9")
+
+my.mod <- rip.lda
+my.gr.pred <- matrix(predict(my.mod,gr)$posterior[,2],nrow=m)
+
+plot(data1.tr[,1:2])
+points(data1.tr[tr.cl,1:2],col="red")
+
+contour(x,y,my.gr.pred,levels=0.5,add=T,col="blue")
+
+my.mod <- rip.qda
+my.gr.pred <- matrix(predict(my.mod,gr)$posterior[,2],nrow=m)
+contour(x,y,my.gr.pred,levels=0.5,add=T,col="green")
+
+rip.lda.poly <- lda(V2~poly(xs,3)+poly(ys,3),data=data1.tr)
+rip.qda.poly <- qda(V2~poly(xs,3)+poly(ys,3),data=data1.tr)
+
+plot(data1.tr[,1:2])
+points(data1.tr[tr.cl,1:2],col="red")
+
+my.mod <- rip.lda.poly
+my.gr.pred <- matrix(predict(my.mod,gr)$posterior[,2],nrow=m)
+contour(x,y,my.gr.pred,levels=0.5,add=T,col="blue")
+
+my.mod <- rip.qda.poly
+my.gr.pred <- matrix(predict(my.mod,gr)$posterior[,2],nrow=m)
+contour(x,y,my.gr.pred,levels=0.5,add=T,col="green")
+
+idx <- c(sample(1:125,10,replace=F),sample(126:250,10,replace=F)  )
+rip.lda.poly.subsamp <- lda(V2~poly(xs,3)+poly(ys,3),data=data1.tr,subset=idx)
+rip.qda.poly.subsamp <- qda(V2~poly(xs,3)+poly(ys,3),data=data1.tr,subset=idx)
+
+plot(data1.tr[,1:2])
+points(data1.tr[tr.cl,1:2],col="red")
+
+my.mod <- rip.lda.poly.subsamp
+my.gr.pred <- matrix(predict(my.mod,gr)$posterior[,2],nrow=m)
+contour(x,y,my.gr.pred,levels=0.5,add=T,col="blue")
+
+my.mod <- rip.qda.poly.subsamp
+my.gr.pred <- matrix(predict(my.mod,gr)$posterior[,2],nrow=m)
+contour(x,y,my.gr.pred,levels=0.5,add=T,col="green")
+
+reps <- 10
+ssize <- 100
+plot(data1.tr[,1:2])
+points(data1.tr[tr.cl,1:2],col="red")
+
+for (i in 1:reps){
+  idx <- c(sample(1:125,ssize,replace=F),sample(126:250,ssize,replace=F)  )
+  rip.lda.poly.subsamp <- lda(V2~poly(xs,3)+poly(ys,3),data=data1.tr,subset=idx)
+  rip.qda.poly.subsamp <- qda(V2~poly(xs,3)+poly(ys,3),data=data1.tr,subset=idx)
+  my.mod <- rip.lda.poly.subsamp
+  my.gr.pred <- matrix(predict(my.mod,gr)$posterior[,2],nrow=m)
+  contour(x,y,my.gr.pred,levels=0.5,add=T,col="blue")
+  my.mod <- rip.qda.poly.subsamp
+  my.gr.pred <- matrix(predict(my.mod,gr)$posterior[,2],nrow=m)
+  contour(x,y,my.gr.pred,levels=0.5,add=T,col="green")
+}
 
 
