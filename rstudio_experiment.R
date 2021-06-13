@@ -1,3 +1,5 @@
+#write.csv(data1, "~/Documents/classification_problem/data1.csv")
+
 # install.packages("mvtnorm")
 library(MASS)
 library(class)
@@ -164,5 +166,7 @@ for (i in 1:reps){
   my.gr.pred <- matrix(predict(my.mod,gr)$posterior[,2],nrow=m)
   contour(x,y,my.gr.pred,levels=0.5,add=T,col="green")
 }
+
+
 
 
