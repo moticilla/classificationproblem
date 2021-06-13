@@ -1,7 +1,9 @@
-
+# install.packages("mvtnorm")
 library(MASS)
 library(class)
+library(mvtnorm)
 
+require(mvtnorm)
 require(MASS)
 require(class)
 
