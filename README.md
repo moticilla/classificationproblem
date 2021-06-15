@@ -6,8 +6,15 @@ The data is properties of breast cancer cell nuclei. I have done the classificat
 
 ![](knnkis3.png)
 
+![](knnkis21.png)
+
+![](knnkis49.png)
+
+![](knndifferentk7.png)
+
 ![](LDAQDA3.png)
 
+![](Largecomparison2.png)
 
 ## Sources and Acknowledgements:
 Sources:
