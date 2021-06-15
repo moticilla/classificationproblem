@@ -26,6 +26,9 @@ data1.tr <- data1[picked,]
 data1.te <- data1[-picked,]
 
 
+########################################################################
+
+
 #basic-plots
 
 
@@ -75,7 +78,7 @@ my.gr.pred.mat <- matrix(my.gr.pred,ncol=m)
 contour(x,y,my.gr.pred.mat,levels=0.5,add=T,col="orange",lty=2,lwd=2,drawlabels=F)
 
 
-
+##################################################################
 
 #LDA
 
@@ -178,12 +181,14 @@ for (i in 1:reps){
 }
 
 
+
+######################################################################
+
 #logistic regression
 
 
-
 # First, logistic regression.
-rip.lr <- glm(yc~.,data=data1.tr,family="binomial")   
+rip.lr <- glm(V2~.,data=data1.tr,family="binomial")   
 
 # compute the test set predictions, on the "response" scale
 rip.lr.pred <- predict(rip.lr,data1.te,type="response")
@@ -192,8 +197,8 @@ rip.lr.pred <- predict(rip.lr,data1.te,type="response")
 rip.lr.train.pred <- predict(rip.lr,type="response")
 
 # error rates
-rip.lr.err.test <- sum(data1.te$yc != (rip.lr.pred > 0.5))/nrow(data1.te)
-rip.lr.err.train <- sum(data1.tr$yc != (rip.lr.train.pred > 0.5))/nrow(data1.tr)
+rip.lr.err.test <- sum(data1.te$V2 != (rip.lr.pred > 0.5))/nrow(data1.te)
+rip.lr.err.train <- sum(data1.tr$V2 != (rip.lr.train.pred > 0.5))/nrow(data1.tr)
 
 
 # cheat knn on test set
@@ -204,7 +209,7 @@ for (k in krange){
   knn.cl <- as.numeric(my.knn)-1
   knn.prob <- (attributes(knn(data1.tr[,1:2],data1.te[,1:2],data1.tr[,3],k=k,prob=T)))$prob
   my.test.pred <- knn.cl * knn.prob + (1-knn.cl)*(1-knn.prob)
-  err.rate <- sum((my.test.pred >= 0.5) != data1.te$yc)/nrow(data1.te) 
+  err.rate <- sum((my.test.pred >= 0.5) != data1.te$V2)/nrow(data1.te) 
   k.test.res[k-1] <- err.rate
 }
 
@@ -230,7 +235,7 @@ for (k in krange){
   knn.cl <- as.numeric(my.knn)-1
   knn.prob <- (attributes(knn(rip.tr[,1:2],rip.valid[,1:2],rip.tr[,3],k=k,prob=T)))$prob
   my.test.pred <- knn.cl * knn.prob + (1-knn.cl)*(1-knn.prob)
-  err.rate <- sum((my.test.pred >= 0.5) != rip.valid$yc)/nrow(rip.valid) 
+  err.rate <- sum((my.test.pred >= 0.5) != rip.valid$V2)/nrow(rip.valid) 
   k.test.res[k-1] <- err.rate
 }
 
@@ -256,7 +261,7 @@ for (j in 1:reps){
     knn.cl <- as.numeric(my.knn)-1
     knn.prob <- (attributes(knn(rip.tr[,1:2],rip.valid[,1:2],rip.tr[,3],k=k,prob=T)))$prob
     my.test.pred <- knn.cl * knn.prob + (1-knn.cl)*(1-knn.prob)
-    err.rate <- sum((my.test.pred >= 0.5) != rip.valid$yc)/nrow(rip.valid) 
+    err.rate <- sum((my.test.pred >= 0.5) != rip.valid$V2)/nrow(rip.valid) 
     k.test.res[k-1] <- err.rate
   }
   rip.err.mat[,j] <- k.test.res
@@ -268,4 +273,109 @@ boxplot(t(rip.err.mat),xlab=krange)
 k.medians <- apply(rip.err.mat,1,median)
 min(k.medians)
 which.min(k.medians)
+
+
+
+
+#####################################################
+
+#cross validation
+
+
+
+require(MASS)
+require(class)
+# LDA, train only, 10 fold cross validation. 
+
+V <- 5
+V.frac <- nrow(data1.tr)/V    # happily, sample size divides!
+v.fold.lda.res <- numeric(V)
+
+for (i in 1:V){
+  v.test.idx <- ((i-1)*V.frac+1):(V.frac*i)
+  v.train.idx <- setdiff(1:nrow(data1.tr),v.test.idx)
+  rip.lda <-  lda(V2~.,data=data1.tr,subset=v.train.idx)
+  rip.lda.pred <- predict(rip.lda,data1.tr[v.test.idx,])$posterior[,2]
+  err.rate <- sum(data1.tr[v.test.idx,"V2"] != (rip.lda.pred > 0.5))/length(v.test.idx)
+  v.fold.lda.res[i] <- err.rate
+}
+mean(v.fold.lda.res)
+sqrt(var(v.fold.lda.res))/sqrt(V)
+
+
+# QDA, train only, 10 fold cross validation. 
+
+v.fold.qda.res <- numeric(V)
+
+for (i in 1:V){
+  v.test.idx <- ((i-1)*V.frac+1):(V.frac*i)
+  v.train.idx <- setdiff(1:nrow(data1.tr),v.test.idx)
+  rip.qda <-  qda(V2~.,data=data1.tr,subset=v.train.idx)
+  rip.qda.pred <- predict(rip.qda,data1.tr[v.test.idx,])$posterior[,2]
+  err.rate <- sum(data1.tr[v.test.idx,"V2"] != (rip.qda.pred > 0.5))/length(v.test.idx)
+  v.fold.qda.res[i] <- err.rate
+}
+mean(v.fold.qda.res)
+sqrt(var(v.fold.qda.res))/sqrt(V)
+
+# LR, train only, 10 fold cross validation. 
+
+v.fold.lr.res <- numeric(V)
+
+for (i in 1:V){
+  v.test.idx <- ((i-1)*V.frac+1):(V.frac*i)
+  v.train.idx <- setdiff(1:nrow(data1.tr),v.test.idx)
+  rip.lr <-  glm(V2~.,data=data1.tr,subset=v.train.idx,family="binomial")
+  rip.lr.pred <- predict(rip.lr,data1.tr[v.test.idx,],type="response")
+  err.rate <- sum(data1.tr[v.test.idx,"V2"] != (rip.lr.pred > 0.5))/length(v.test.idx)
+  v.fold.lr.res[i] <- err.rate
+}
+mean(v.fold.lr.res)
+sqrt(var(v.fold.lr.res))/sqrt(V)
+
+
+
+
+
+# V fold cross validation for k-nn. 
+# Note, the basic structure is the same, it is the details of the classifier that have changed
+k=21
+krange <- 2:75
+v.fold.knn.mat <- matrix(0,nrow=length(krange),ncol=V)
+
+for (i in 1:V){
+  v.test.idx <- ((i-1)*V.frac+1):(V.frac*i)
+  v.train.idx <- setdiff(1:nrow(data1.tr),v.test.idx)
+  k.test.res <- numeric(length(krange))
+  # loop over k
+  for (j in krange){
+    my.knn <-  knn(data1.tr[v.train.idx,1:2],data1.tr[v.test.idx,1:2],data1.tr[v.train.idx,3],k=j)
+    knn.cl <- as.numeric(my.knn)-1
+    knn.prob <- (attributes(knn(data1.tr[v.train.idx,1:2],data1.tr[v.test.idx,1:2],data1.tr[v.train.idx,3],k=k,prob=T)))$prob
+    my.test.pred <- knn.cl * knn.prob + (1-knn.cl)*(1-knn.prob)
+    err.rate <- sum((my.test.pred >= 0.5) != data1.tr$V2[v.test.idx])/length(v.test.idx) 
+    k.test.res[j-1] <- err.rate
+  }
+  v.fold.knn.mat[,i] <- k.test.res 
+}
+
+boxplot(t(v.fold.knn.mat),xlab=krange)
+
+
+k.medians <- apply(v.fold.knn.mat,1,median)
+min(k.medians)
+which.min(k.medians)
+
+
+k.means <- apply(v.fold.knn.mat,1,median)
+ks.std.errs <- apply(v.fold.knn.mat,1,function(x) sqrt(var(x)))/sqrt(V)
+
+plot(krange,k.means)
+
+
+# compare the minimum mean choices
+
+min.ks <- which(k.means == min(k.means))
+cbind(krange[min.ks],k.means[min.ks],ks.std.errs[min.ks])
+
 
