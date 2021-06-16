@@ -1,13 +1,20 @@
-# classification problem
-This repositorie contains my code for my first year project of making a poster comparing different classification methods.
+# Classification Problem
+This repository contains my code for my first year project of making a poster comparing different classification methods.
 The data is properties of breast cancer cell nuclei. I have done the classification methods in both R and Python and both scripts are contained here. There are also the extra images and graphs that there wasn't room for on the poster as well as the poster itself which is made in LaTeX.
 
 
 
 ![](knnkis3.png)
 
+![](knnkis21.png)
+
+![](knnkis49.png)
+
+![](knndifferentk7.png)
+
 ![](LDAQDA3.png)
 
+![](Largecomparison2.png)
 
 ## Sources and Acknowledgements:
 Sources:
