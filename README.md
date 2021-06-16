@@ -2,6 +2,8 @@
 This repository contains my code for my first year project of making a poster comparing different classification methods.
 The data is properties of breast cancer cell nuclei. I have done the classification methods in both R and Python and both scripts are contained here. There are also the extra images and graphs that there wasn't room for on the poster as well as the poster itself which is made in LaTeX.
 
+This is the link to my oral presentation:
+https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=346025e3-92d8-48c1-874e-ad4900b3d605
 
 
 ![](knnkis3.png)
