@@ -9,12 +9,16 @@ require(mvtnorm)
 require(MASS)
 require(class)
 
-wdbc <- read.csv("~/Documents/classification_problem/wdbc.data", header=FALSE)
 
 wdbc <- read.csv("~/Documents/classification_problem/wdbc.data", header=FALSE)
 data1 <- wdbc[, c('V4' ,'V9', 'V2')]
+data2 <- wdbc[, c('V3', 'V4','V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V2')]
 data1[data1 == "M"] <- 1
 data1[data1 == "B"] <- 0
+data2[data2 == "M"] <- 1
+data2[data2 == "B"] <- 0
+write.csv(data2, "~/Documents/classification_problem/data2.csv")
+write.csv(data1, "~/Documents/classification_problem/data1.csv")
 head(data1)
 
 #split into training and test
