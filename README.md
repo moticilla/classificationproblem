@@ -5,6 +5,10 @@ The data is properties of breast cancer cell nuclei. I have done the classificat
 This is the link to my oral presentation:
 https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=346025e3-92d8-48c1-874e-ad4900b3d605
 
+My poster is under 6_01863056_EP.pdf
+
+classification_bc.pdf contains my graphs comparing pairs of features.
+
 
 ![](knnkis3.png)
 
@@ -39,5 +43,14 @@ https://scikit-learn.org/stable/auto_examples/classification/plot_lda_qda.html
 
 http://www.science.smith.edu/~jcrouser/SDS293/labs/lab5-py.html
 
+https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html
+
+https://christophm.github.io/interpretable-ml-book/
+
+https://www.datascienceblog.net/post/machine-learning/linear-discriminant-analysis/
+
+https://scikit-learn.org/stable/auto_examples/model_selection/plot_train_error_vs_test_error.html
+
 Acknowledgements:
 Thank you to Tim Pizey for making me get github when I was 10, for helping me set up this repository and adding a full stop to this README.
+Thank you to Eleanor Kneip (Imperial maths student) for the support with LaTeX and the encouragement.
